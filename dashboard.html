@@ -1,0 +1,548 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>IOTA // MATRIX CONTROL</title>
+<style>
+html,body{margin:0;background:#020604;color:#62ff8a;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(98,255,138,.035) 0,rgba(98,255,138,.035) 1px,transparent 1px,transparent 4px);z-index:5}
+#rain{position:fixed;inset:0;opacity:.13;z-index:-1;pointer-events:none}
+.wrap{position:relative;z-index:6;max-width:1900px;margin:0 auto;padding:20px 24px 24px}
+header{position:relative;margin:0 0 8px;background:transparent}
+.heroBanner{position:relative;width:100%;aspect-ratio:6/1;line-height:0;overflow:hidden;background:#020604}
+.heroBanner img{display:block;width:100%;height:100%;object-fit:fill;user-select:none;-webkit-user-drag:none}
+.heroPill{position:absolute;z-index:7;top:38%;height:12%;width:5%;padding:0;border:0;border-radius:50%;background:transparent;cursor:pointer;outline:none}
+.heroPill.red{left:54.5%}.heroPill.blue{left:77.5%}
+.heroPill.red:hover,.heroPill.red:focus-visible{background:rgba(255,40,40,.12);box-shadow:0 0 30px rgba(255,50,50,.55)}
+.heroPill.blue:hover,.heroPill.blue:focus-visible{background:rgba(45,140,255,.13);box-shadow:0 0 30px rgba(50,160,255,.55)}
+.headerMeta{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 4px;min-height:70px;box-sizing:border-box}
+.headerMeta h1{font-size:18px;letter-spacing:3px}
+.escapeRow{display:flex;justify-content:flex-end;margin:0 0 12px}
+.headerMain{padding-right:840px;min-height:250px}
+.headerArt{position:static;display:flex;align-items:flex-start;gap:14px;pointer-events:none;user-select:none;min-height:0;height:0;flex:0 0 auto;overflow:visible}.headerMeta.active{min-height:225px}.headerMeta.active .headerArt{height:225px}
+.asciiFigure,.neoFigure{margin:0;width:260px;height:225px;text-align:center;font:9px/1.01 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;white-space:pre;color:#37bf5d;text-shadow:0 0 8px rgba(98,255,138,.35);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;overflow:hidden;position:relative;flex:0 0 260px}
+.neoImg{display:block;width:260px;height:210px;object-fit:contain;image-rendering:auto;filter:drop-shadow(0 0 8px rgba(98,255,138,.35));}
+.neoFigure{display:none;opacity:0;transform:translateX(10px);transition:opacity .35s,transform .35s}
+.neoFigure.show{display:flex;opacity:.98;transform:translateX(0)}
+.asciiFigure.morpheus{opacity:0;transform:translateX(-10px);transition:opacity .35s,transform .35s}
+.asciiFigure.morpheus.show{opacity:.95;transform:translateX(0)}
+.handFigure{width:520px;height:225px;flex:0 0 520px;position:relative;display:none;opacity:0;transform:translateX(10px);transition:opacity .35s,transform .35s;align-items:flex-start;justify-content:center;overflow:visible}
+.handFigure.show{display:flex;opacity:.98;transform:translateX(0)}
+.handImg{display:block;width:520px;height:202px;object-fit:contain;object-position:center top;filter:drop-shadow(0 0 8px rgba(98,255,138,.35));pointer-events:none}
+.handPill{position:absolute;width:94px;height:58px;border:0;background:transparent;border-radius:999px;cursor:pointer;pointer-events:auto;z-index:2;outline:none}
+.handPill.redHot{left:10%;top:33%}.handPill.blueHot{left:58%;top:34%}
+.handPill:focus-visible{box-shadow:0 0 0 2px #62ff8a,0 0 18px rgba(98,255,138,.7)}
+.asciiName{margin-top:4px;font:bold 8px/1 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;letter-spacing:2px;color:#278d46}
+.asciiFigure.morpheus .asciiName,.neoFigure .asciiName{color:#35bf5d}
+h1{margin:0;font-size:24px;letter-spacing:4px;text-shadow:0 0 10px #38ff69}
+.sub{margin-top:7px;color:#35bf5d;font-size:12px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px}
+.card{border:1px solid #176e36;background:rgba(0,12,5,.84);padding:16px;min-height:100px;box-shadow:inset 0 0 25px rgba(0,255,80,.025)}
+.label{font-size:11px;color:#37b75c;letter-spacing:2px}
+.value{font-size:27px;margin-top:12px;text-shadow:0 0 9px rgba(98,255,138,.65)}
+.good{color:#62ff8a}.warn{color:#ffd65a}.bad{color:#ff5c72}
+.section{margin-top:14px}
+.runsTable{width:100%;border-collapse:collapse;font-size:12px}.runsTable th,.runsTable td{padding:8px 10px;border-bottom:1px solid #0b5428;text-align:left}.runsTable th{color:#35bf5d;letter-spacing:1px}.runsTable tr.currentRun{background:rgba(98,255,138,.10);box-shadow:inset 3px 0 0 #62ff8a}.runBadge{display:inline-block;border:1px solid #62ff8a;padding:2px 6px;margin-left:8px;font-size:10px;letter-spacing:1px}.runTier{font-weight:bold}.spotOpen{color:#62ff8a}.spotFull{color:#ff6578}.spotUnknown{color:#35bf5d}
+#runAvailabilitySection{position:sticky;top:0;z-index:12;max-height:36vh;overflow:auto;background:rgba(2,6,4,.97);border:1px solid #176e36;padding:0 12px 10px;box-shadow:0 8px 18px rgba(0,0,0,.65)}#runAvailabilitySection h2{position:sticky;top:0;background:#020604;padding-top:10px;z-index:1}
+.inlineNetworkStatus{float:right;font-size:10px;letter-spacing:1px;color:#37b75c}.inlineNetworkStatus .value{display:inline-block;font-size:11px;margin:0 0 0 6px}
+.runRankSummary{margin:10px 0;color:#62ff8a;font-size:13px;letter-spacing:1px}.runRankMeta{color:#37b75c;font-size:10px;margin:-4px 0 10px}.runMetricCards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:10px 0}.runMetricCard{border:1px solid #176e36;background:rgba(0,12,5,.76);padding:12px}.runMetricCard .value{font-size:20px}.runChartToolbar{display:flex;align-items:center;gap:10px;margin:12px 0}.runChartToolbar select{width:auto;min-width:220px;margin:0}.runComparisonBars{display:grid;gap:8px;padding:12px;border:1px solid #145b2f;background:rgba(0,5,2,.72)}.runCompareRow{display:grid;grid-template-columns:minmax(88px,150px) 1fr minmax(68px,110px);align-items:center;gap:10px;font-size:11px}.runCompareLabel{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#72d98c}.runCompareTrack{height:14px;background:#07120b;border:1px solid #123c20;overflow:hidden}.runCompareFill{height:100%;background:linear-gradient(90deg,#176e36,#62ff8a);min-width:1px}.runCompareRow.mine .runCompareFill{background:linear-gradient(90deg,#b7831c,#ffd65a)}.runCompareRow.mine .runCompareLabel{color:#ffd65a;font-weight:bold}.runCompareValue{text-align:right;color:#b8ffce}.runComparisonEmpty{padding:16px;border:1px dashed #176e36;color:#37b75c;font-size:12px}
+.lookupPage{position:fixed;inset:0;z-index:10001;display:none;overflow:auto;background:rgba(1,5,3,.98);padding:22px;box-sizing:border-box}.lookupPage.show{display:block}.lookupPanel{max-width:1200px;margin:0 auto;border:1px solid #176e36;background:#020906;padding:18px;box-shadow:0 0 35px rgba(0,255,80,.12)}.lookupHead{display:flex;align-items:center;justify-content:space-between;gap:12px}.lookupFields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0}.lookupStats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.lookupStat{border:1px solid #176e36;padding:12px;min-height:70px;overflow-wrap:anywhere}.lookupStat .value{font-size:18px}.lookupResult{margin-top:14px}.lookupTable{width:100%;border-collapse:collapse;font-size:12px}.lookupTable td,.lookupTable th{padding:7px;border-bottom:1px solid #145b2f;text-align:left}.lookupError{color:#ff8a97;white-space:pre-wrap}.lookupClose{background:#031008;color:#62ff8a;border:1px solid #176e36;padding:7px 12px;font:inherit;cursor:pointer}
+.section h2{font-size:13px;letter-spacing:3px;border-bottom:1px solid #176e36;padding-bottom:8px}
+canvas.chart{width:100%;height:230px;border:1px solid #145b2f;background:rgba(0,5,2,.72)}
+.events{max-height:270px;overflow:auto;font-size:12px;line-height:1.65}
+.event{border-bottom:1px dashed #103e20;padding:5px 0}.ts{color:#278d46}.err{color:#ff6578}.info{color:#62ff8a}
+.cfg{display:block;width:100%;margin-top:9px;background:#010603;color:#62ff8a;border:1px solid #176e36;padding:9px;font:inherit;box-sizing:border-box}
+.footer{margin-top:15px;font-size:10px;color:#257c40}.shitmeta{margin-top:10px;color:#35bf5d;font-size:10px;letter-spacing:1px}.shittable{width:100%;border-collapse:collapse;margin-top:12px;font-size:11px}.shittable th,.shittable td{border-bottom:1px dashed #103e20;padding:6px 5px;text-align:left}.shittable th{color:#278d46;font-weight:normal;letter-spacing:1px}.shittable td.num{width:70px;text-align:right;font-size:16px}.shittable td.when{width:150px;color:#37b75c}.shitdetail{margin-top:12px;padding-top:10px;border-top:1px solid #145b2f;color:#35bf5d;font-size:11px;line-height:1.5;white-space:pre-wrap}.shitbox{background:rgba(0,4,2,.95);border:1px solid #1c9f4b;box-shadow:inset 0 0 35px rgba(0,255,80,.04),0 0 20px rgba(0,255,80,.06);padding:20px}.shitbox pre{margin:0 auto;font-size:clamp(9px,1.1vw,15px);line-height:1.55;color:#62ff8a;text-shadow:0 0 7px rgba(98,255,138,.45);font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;white-space:pre;overflow:auto;text-align:left;width:max-content;max-width:100%}
+
+.pill{pointer-events:auto;border:2px solid;padding:9px 22px;border-radius:999px;font:700 12px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:2px;cursor:pointer;box-shadow:0 0 16px rgba(0,0,0,.5),inset 0 0 12px rgba(255,255,255,.08);transition:transform .18s,box-shadow .18s}.pill:hover{transform:translateY(-2px);box-shadow:0 0 22px rgba(255,255,255,.22),inset 0 0 12px rgba(255,255,255,.12)}
+.pill.red{background:#3a0303;color:#ff5252;border-color:#ff3535}.pill.blue{background:#03152f;color:#4eb4ff;border-color:#3fa9ff}.pill.green{background:#03170b;color:#62ff8a;border-color:#38ff69}
+#donationOverlay,#runOverlay,#spotOverlay{position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.66);backdrop-filter:blur(2px)}#donationOverlay.show,#runOverlay.show,#spotOverlay.show{display:flex}
+.popup{width:min(760px,92vw);border:1px solid #62ff8a;background:rgba(0,8,4,.97);box-shadow:0 0 45px rgba(0,255,90,.18);padding:22px;position:relative}.popup h3{margin:0 40px 6px 0;font-size:18px;letter-spacing:2px}.popup .desc{color:#37b75c;font-size:11px;margin-bottom:14px}.donrow{display:grid;grid-template-columns:90px 1fr 80px;gap:8px;align-items:center;border-top:1px dashed #145b2f;padding:10px 0}.donrow .coin{color:#62ff8a}.donrow code{font:12px ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all;color:#b8ffce}.donrow button,.popup .closebtn{background:#031008;color:#62ff8a;border:1px solid #176e36;padding:7px 10px;font:inherit;cursor:pointer}.popup .closebtn{position:absolute;right:12px;top:12px}
+#donationOverlay{z-index:10000;pointer-events:none}#donationOverlay.show{pointer-events:auto}
+#minerCreateOverlay,#pairingOverlay{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.78);backdrop-filter:blur(3px)}#minerCreateOverlay.show,#pairingOverlay.show{display:flex}.minerbar{display:flex;gap:10px;align-items:center;margin:12px 0;border:1px solid #176e36;background:rgba(0,12,5,.84);padding:10px}.minerbar select{max-width:420px;margin:0}.pairtext{width:100%;min-height:130px;background:#010603;color:#b8ffce;border:1px solid #176e36;font:11px ui-monospace,monospace;padding:10px;box-sizing:border-box;white-space:pre;overflow:auto}
+#runOverlay,#spotOverlay{background:rgba(0,0,0,.58);overflow:hidden}.runRain{position:absolute;inset:0;width:100%;height:100%;opacity:.72;filter:drop-shadow(0 0 4px rgba(56,255,105,.45));pointer-events:none}.runbox{position:relative;z-index:2;font:700 clamp(18px,3vw,34px) ui-monospace,SFMono-Regular,Menlo,monospace;text-align:center;color:#62ff8a;text-shadow:0 0 16px #62ff8a;white-space:pre-line;animation:runPulse .9s ease-in-out infinite alternate}.runbox .small{display:block;color:#37b75c;font-size:12px;margin-top:14px;letter-spacing:2px}@keyframes runPulse{from{transform:scale(1);opacity:.88}to{transform:scale(1.025);opacity:1}}.transitionDismiss{display:block;margin:18px auto 0;padding:7px 12px;background:#031008;color:#62ff8a;border:1px solid #176e36;font:12px ui-monospace,monospace;letter-spacing:1px;cursor:pointer}.runRecord{margin:10px 0;padding:12px;border:1px solid #176e36;background:rgba(0,12,5,.74)}.runRecordTitle{font-weight:bold}.runContext{max-height:170px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;font-size:11px;color:#ffb0b0;margin-top:8px}.runHealth{font-size:11px;color:#35b75c;margin-top:6px}
+body.theme-red{color:#ff5a5a}body.theme-red header{border-color:#ff3333;box-shadow:0 0 22px rgba(255,40,40,.14)}.theme-red h1{color:#ff5a5a;text-shadow:0 0 10px #ff3333}.theme-red .sub,.theme-red .label,.theme-red .footer,.theme-red .shitmeta{color:#d83b3b}.theme-red .section h2{border-color:#8f2121}.theme-red .card{border-color:#8f2121}.theme-red .value,.theme-red .info,.theme-red .good,.theme-red .shitbox pre{color:#ff5a5a}.theme-red canvas.chart{border-color:#7f2020}.theme-red .popup{border-color:#ff3333;box-shadow:0 0 45px rgba(255,30,30,.18)}
+body.theme-blue{color:#4eb4ff}.theme-blue header{border-color:#298bd6;box-shadow:0 0 22px rgba(60,150,255,.14)}.theme-blue h1{color:#4eb4ff;text-shadow:0 0 10px #298bd6}.theme-blue .sub,.theme-blue .label,.theme-blue .footer,.theme-blue .shitmeta{color:#3287be}.theme-blue .section h2{border-color:#245c83}.theme-blue .card{border-color:#245c83}.theme-blue .value,.theme-blue .info,.theme-blue .good,.theme-blue .shitbox pre{color:#4eb4ff}.theme-blue canvas.chart{border-color:#245c83}.theme-blue .popup{border-color:#3fa9ff;box-shadow:0 0 45px rgba(40,150,255,.18)}
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}.wrap{padding:12px}.headerMeta{align-items:flex-start;flex-direction:column;gap:2px}.headerMeta h1{font-size:15px}.headerArt{transform:scale(.7);transform-origin:top right;margin-top:-18px;margin-left:auto;height:0}.headerMeta.active{min-height:155px}.headerMeta.active .headerArt{height:155px}.heroPill{width:8%;height:16%;top:36.5%}.heroPill.red{left:53%}.heroPill.blue{left:76%}.lookupFields{grid-template-columns:1fr}.lookupStats{grid-template-columns:repeat(2,minmax(0,1fr))}.lookupPage{padding:8px}.runsTable{font-size:10px}.runsTable th,.runsTable td{padding:6px}}
+</style>
+</head>
+<body>
+<canvas id="rain"></canvas>
+<div class="wrap">
+<header aria-label="IOTA Matrix Monitor">
+<div class="heroBanner">
+<img src="/matrix_hands_banner.png" alt="Matrix-style hands holding a red pill and a blue pill">
+<button class="heroPill red" type="button" aria-label="Red pill: show donation addresses" title="Red pill · donation addresses" onclick="activateTheme('red')"></button>
+<button class="heroPill blue" type="button" aria-label="Blue pill: show donation addresses" title="Blue pill · donation addresses" onclick="activateTheme('blue')"></button>
+</div>
+<div class="headerMeta"><div><h1>IOTA // MATRIX CONTROL</h1><div class="sub">TRAIN AT HOME · <span id="minername">HOTONE</span> · LOCAL TELEMETRY CORE · v2.9.32</div></div><div class="headerArt" aria-live="polite"><div id="neoFigure" class="neoFigure"><img class="neoImg" src="/neo_ascii.png" alt="Neo rendered in Matrix characters"><div class="asciiName">NEO · RUN ACTIVE</div></div></div></div>
+</header>
+<div class="escapeRow"><button class="pill green" id="escapePill" onclick="escapeMatrix()">🟢 ESCAPE THE MATRIX</button><button class="pill green" onclick="openMinerLookup()">🔎 PUBLIC MINER LOOKUP</button></div>
+<div class="section">
+<h2>MINER CONFIGURATION</h2>
+<div class="grid" style="grid-template-columns:repeat(2,1fr)">
+<div class="card"><div class="label">MINER NAME</div><input id="cfg_name" class="cfg" value="HOTONE" /></div>
+<div class="card"><div class="label">MINER ID (OPTIONAL)</div><input id="cfg_id" class="cfg" value="" placeholder="Optional" /></div>
+<div class="card"><div class="label">PUBLIC HOTKEY · USER CONFIGURED</div><input id="cfg_hotkey" class="cfg" value="" /><div id="hotkeysource" class="sub">ENTER YOUR MINER HOTKEY</div></div>
+<div class="card"><div class="label">PUBLIC COLDKEY</div><input id="cfg_coldkey" class="cfg" value="" /></div>
+<div class="card" style="grid-column:1/-1"><div class="label">BITTENSOR WALLET AUTO-DETECT</div><div style="display:flex;gap:8px;align-items:center"><select id="bittensorWallets" class="cfg" style="margin-top:0;flex:1" onchange="applyBittensorWallet()"><option value="">Choose a wallet detected under ~/.bittensor</option></select><button type="button" onclick="detectBittensorWallets()" class="pill green" style="border-radius:2px;padding:8px 12px">DETECT WALLETS</button></div><div id="walletDetectMsg" class="sub">Only public addresses are applied to the miner configuration.</div></div>
+<div class="card" style="grid-column:1/-1"><div class="label">IOTA TRAIN AT HOME LOG FOLDER</div><div style="display:flex;gap:8px;align-items:center"><input id="cfg_log_dir" class="cfg" style="margin-top:0;flex:1" placeholder="Automatically detected"/><button id="autoDetectButton" type="button" onclick="autoDetectLogs()" class="pill green" style="border-radius:2px;padding:8px 12px">AUTO-DETECT</button></div><div id="logpathsource" class="sub">AUTO-DETECTING LOG FOLDER…</div></div>
+</div>
+<div class="sub" style="margin-top:8px">PUBLIC IDENTIFIERS ONLY · hotkey is entered by you · miner ID is optional and is auto-resolved from matching public API records when an endpoint exposes it · changing hotkey/coldkey starts a fresh miner history · no seed phrase/private key required</div>
+<button onclick="saveConfig()" style="margin-top:10px;background:#031008;color:#62ff8a;border:1px solid #176e36;padding:7px 12px;font-family:inherit">SAVE CONFIGURATION</button>
+<span id="cfgmsg" class="sub" style="margin-left:10px"></span>
+<div class="grid">
+<div class="card" data-log-dependent><div class="label">STATUS</div><div id="status" class="value">SCANNING...</div></div>
+<div class="card" data-log-dependent><div class="label">QUEUE POSITION</div><div id="queue" class="value">—</div></div>
+<div class="card"><div class="label">MINER ACTIVATIONS · API REPORTED</div><div id="acts" class="value">—</div><div id="actsource" class="sub">DISCOVERING SOURCE…</div></div>
+<div class="card"><div class="label">MINER THROUGHPUT · API UNIT</div><div id="throughput" class="value">—</div><div id="throughsource" class="sub">DISCOVERING SOURCE…</div></div>
+<div class="card" data-log-dependent><div class="label">FORWARD</div><div id="fwd" class="value">0</div></div>
+<div class="card" data-log-dependent><div class="label">BACKWARD</div><div id="bwd" class="value">0</div></div>
+<div class="card" data-log-dependent><div class="label">LAYER</div><div id="layer" class="value">—</div></div>
+<div class="card" data-log-dependent><div class="label">RUN / EPOCH</div><div id="run" class="value" style="font-size:16px">—</div></div>
+<div class="card" data-log-dependent><div class="label">QUEUE EVENTS</div><div id="qe" class="value">0</div></div>
+<div class="card" data-log-dependent><div class="label">REGISTRATION ERRORS</div><div id="re" class="value">0</div></div>
+<div class="card" data-log-dependent data-miner-dependent><div class="label">P2P PEERS</div><div id="peers" class="value">—</div></div>
+<div class="card"><div class="label">TAH API</div><div id="api" class="value" style="font-size:18px">CHECKING</div></div>
+</div>
+
+<div class="section" id="runAvailabilitySection"><h2>RUN AVAILABILITY // PERFORMANCE <span id="runPerfUpdated" class="sub"></span><span class="inlineNetworkStatus">NETWORK DATA <span id="netapi" class="value">DISCOVERING</span></span></h2>
+<div class="sub">CAPACITY IS FROM THE PUBLIC OCCUPANCY API. GLOBAL PROGRESS IS SAMPLED EVERY FIVE MINUTES. “PROGRESS FLAT” IS A CHECK SIGNAL, NOT PROOF OF A STALL; PUBLIC DATA DOES NOT SHOW LIVE P2P PEER CONNECTIONS.</div>
+<div id="runAvailability"><div class="sub">LOADING RUN AVAILABILITY…</div></div></div>
+
+<div class="section" id="activeRunSection" style="display:none"><h2>YOUR ACTIVE RUN // PEER COMPARISON</h2>
+<div id="runRankSummary" class="runRankSummary">WAITING FOR ACTIVE RUN…</div>
+<div id="runRankMeta" class="runRankMeta"></div>
+<div id="runComparisonMetrics" class="runMetricCards"></div>
+<div class="runChartToolbar"><span class="label">COMPARE SAME-LAYER MINERS BY</span><select id="runMetricSelect" class="cfg" onchange="renderRunComparison(window.latestRunComparison)"><option value="activations">ACTIVATIONS</option><option value="throughput">THROUGHPUT · API VALUE</option><option value="incentive">INCENTIVE / SCORE</option></select></div>
+<div id="runComparisonChart" class="runComparisonEmpty">Waiting for the public miner snapshot for your active run…</div>
+</div>
+
+<div class="section" id="shitSection" data-log-dependent>
+<h2>SHITS GONE WRONG COUNTER™</h2>
+<div class="card shitbox" style="min-height:0">
+<pre id="shitAscii">╔════════════════════════════════════════════╗
+║       SHITS GONE WRONG COUNTER™            ║
+║                                            ║
+║                 0                          ║
+║          TOTAL SHITS GONE WRONG            ║
+║                                            ║
+║ REGISTRATION FAILURES       0              ║
+║ QUEUE RESETS                0              ║
+║ P2P TIMEOUTS                0              ║
+║ ACTIVATION ERRORS           0              ║
+║ MINER KICKS                 0              ║
+╚════════════════════════════════════════════╝</pre>
+<div class="shitmeta" id="shitMeta">COUNTER INITIALISING…</div>
+<div class="shitdetail" id="shitDetail">No historical error detail loaded yet.</div>
+</div>
+</div>
+
+<div class="section" id="runHistorySection" data-log-dependent><h2>RUN &amp; KICK HISTORY</h2><div class="sub">RUN STARTS COME FROM YOUR MINER LOG. KICKS INCLUDE PRIOR WARNINGS / ERRORS AND THE LAST FIVE MINUTES OF NETWORK / SYSTEM HEALTH.</div><div id="runHistory"><div class="sub">WAITING FOR RUN EVENTS…</div></div></div>
+
+<div class="section"><h2>NETWORK / DEVICE TELEMETRY</h2><div class="grid" style="grid-template-columns:repeat(4,1fr)">
+<div class="card" data-log-dependent><div class="label">DOWNLOAD Mbps · T@H LOG</div><div id="down" class="value" style="font-size:20px">—</div></div>
+<div class="card" data-log-dependent><div class="label">UPLOAD Mbps · T@H LOG</div><div id="up" class="value" style="font-size:20px">—</div></div>
+<div class="card" data-log-dependent><div class="label">PEER REACHABILITY</div><div id="peerpct" class="value" style="font-size:20px">—</div></div>
+<div class="card"><div class="label">DEVICE</div><div id="device" class="value" style="font-size:20px">—</div></div>
+<div class="card"><div class="label">ROUTER PING</div><div id="routerlat" class="value" style="font-size:20px">—</div><div id="routergw" class="sub">DISCOVERING GATEWAY…</div></div>
+<div class="card"><div class="label">PUBLIC API PROBE</div><div id="apilat" class="value" style="font-size:20px">OFF</div><div id="apilat2" class="sub">NO EXTRA WAN PROBES</div></div></div></div>
+<div class="section"><h2>NETWORK ACTIVATION TELEMETRY</h2><canvas id="chart" class="chart"></canvas></div>
+<div class="section" id="queueHistorySection" data-log-dependent><h2>QUEUE POSITION // 24 HOUR HISTORY</h2>
+<div class="sub">MIDNIGHT → MIDNIGHT · vertical = queue position · horizontal = time of day</div>
+<canvas id="queueChart" class="chart"></canvas></div>
+
+<div class="section" id="localTelemetrySection" data-log-dependent><h2>LOCAL MINER TELEMETRY</h2><div class="grid" style="grid-template-columns:repeat(4,1fr)">
+<div class="card"><div class="label">LOCAL ACTIVATIONS SEEN</div><div id="localacts" class="value" style="font-size:20px">0</div></div>
+<div class="card"><div class="label">LOCAL ACTIVATIONS / H</div><div id="localrate" class="value" style="font-size:20px">0</div></div>
+<div class="card"><div class="label">FORWARD</div><div id="fwd2" class="value" style="font-size:20px">0</div></div>
+<div class="card"><div class="label">BACKWARD</div><div id="bwd2" class="value" style="font-size:20px">0</div></div></div></div>
+<div class="footer">CONFIGURED HOTKEY: <span id="hotkeydisplay">—</span></div>
+<div class="footer">MINER ID: <span id="mineriddisplay">—</span></div>
+<div class="footer">LOG SOURCE: <span id="loginfo">SCANNING…</span></div>
+<div class="footer">NETWORK SOURCE: <span id="netsource">DISCOVERING…</span> · API: <span id="apiendpoint">—</span> · LAST NETWORK CHECK: <span id="netlast">—</span> · DIAG: <span id="netdiag">—</span> <button onclick="fetch('/api/remote_refresh',{method:'POST',headers:{'X-Monitor-Token':'__LOCAL_TOKEN__'}}).catch(()=>{})" style="margin-left:10px;background:#031008;color:#62ff8a;border:1px solid #176e36;padding:3px 8px;font-family:inherit">REFRESH NOW</button></div>
+<div class="footer">LOW-IMPACT MONITORING: upload/download values are read from T@H's own CLI log; this app never runs a speed test. Public API telemetry refreshes every five minutes and limits active-miner polling to its current run. No recurring public-host latency probes are sent. Router latency uses one small LAN ping every 30 seconds.</div>
+<div class="section"><h2>ALPHA PAYOUT HISTORY</h2><div id="payouts" class="events">Waiting for payout observations…</div></div>
+<div class="section" id="eventStreamSection" data-log-dependent><h2>EVENT STREAM</h2><div id="events" class="events"></div></div>
+<div class="footer">SINGLE LOCAL MINER MODE · MATRIX MONITOR v2.9.32 · PUBLIC LOOKUP PAGE IS A READ-ONLY SECOND-MINER VIEW</div>
+</div>
+
+
+
+
+<div id="minerLookupPage" class="lookupPage" aria-label="Public miner lookup">
+ <div class="lookupPanel">
+  <div class="lookupHead"><div><h1>PUBLIC MINER LOOKUP</h1><div class="sub">SECOND-MINER VIEW · READ-ONLY PUBLIC API · DOES NOT CHANGE THE LOCAL MINER CONFIGURATION</div></div><button class="lookupClose" onclick="closeMinerLookup()">CLOSE</button></div>
+  <div class="lookupFields">
+   <label class="card"><span class="label">PUBLIC HOTKEY</span><input id="lookupHotkey" class="cfg" autocomplete="off" placeholder="Miner hotkey"></label>
+   <label class="card"><span class="label">PUBLIC COLDKEY · API IDENTITY CHECK</span><input id="lookupColdkey" class="cfg" autocomplete="off" placeholder="Miner coldkey"></label>
+   <label class="card"><span class="label">RUN · AUTO-DETECT</span><select id="lookupRun" class="cfg"><option value="">AUTO-DETECT FROM HOTKEY</option></select></label>
+  </div>
+  <div class="sub">Enter the public hotkey and coldkey. Leave RUN on auto-detect to search public runs for that hotkey, or choose a run to narrow the lookup. Read-only; public addresses only.</div>
+  <button class="pill green" id="lookupButton" onclick="lookupPublicMiner()">FIND RUN & FETCH MINER</button><span id="lookupMessage" class="sub" style="margin-left:10px"></span>
+  <div id="lookupResult" class="lookupResult"><div class="sub">Enter the miner’s public hotkey and coldkey. The app will search for its current run automatically.</div></div>
+  <div class="footer">Epoch rank is shown only if an API response explicitly provides it. Otherwise the page may show current same-layer activation standing, which is an API snapshot comparison rather than an official epoch leaderboard.</div>
+ </div>
+</div>
+
+<div id="donationOverlay" onclick="if(event.target===this)closeDonation()">
+  <div class="popup">
+    <button class="closebtn" onclick="closeDonation()">CLOSE</button>
+    <h3 id="donationTitle">YOU TOOK THE RED PILL</h3>
+    <div class="desc">IOTA MATRIX CONTROL IS FREE. · SUPPORT DEVELOPMENT IF YOU LIKE THE MONSTER.</div>
+    <div class="donrow" data-wallet="erc20"><div class="coin">ERC20</div><code id="don-erc20"></code><button onclick="copyDonation('erc20')">COPY</button></div>
+    <div class="donrow" data-wallet="solana"><div class="coin">SOLANA</div><code id="don-solana"></code><button onclick="copyDonation('solana')">COPY</button></div>
+    <div class="donrow" data-wallet="btc"><div class="coin">BTC</div><code id="don-btc"></code><button onclick="copyDonation('btc')">COPY</button></div>
+    <div class="donrow" data-wallet="tah"><div class="coin">TAH</div><code id="don-tah"></code><button onclick="copyDonation('tah')">COPY</button></div>
+  </div>
+</div>
+
+<div id="runOverlay" onclick="if(event.target===this)dismissMatrixAlert('runOverlay')"><canvas id="runRain" class="runRain"></canvas><div class="runbox" id="runBox">&gt;&gt;&gt; RUN DETECTED &lt;&lt;&lt;<span class="small">INITIALISING NETWORK TELEMETRY…</span><button class="transitionDismiss" onclick="dismissMatrixAlert('runOverlay')">DISMISS</button></div></div>
+<div id="spotOverlay" onclick="if(event.target===this)dismissMatrixAlert('spotOverlay')"><canvas id="runRainSpot" class="runRain"></canvas><div class="runbox" id="spotBox">&gt;&gt;&gt; SPOTS AVAILABLE &lt;&lt;&lt;<button class="transitionDismiss" onclick="dismissMatrixAlert('spotOverlay')">DISMISS</button></div></div>
+
+<script>
+const rain=document.getElementById('rain'), rc=rain.getContext('2d');
+function resize(){rain.width=innerWidth;rain.height=innerHeight} resize(); addEventListener('resize',resize);
+const chars="アカサタナハマヤラワ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+let drops=Array(Math.ceil(innerWidth/16)).fill(1);
+function themeAccent(){return document.body.classList.contains('theme-red')?'#ff5a5a':document.body.classList.contains('theme-blue')?'#4eb4ff':'#38ff69'}
+function themeTrail(){return document.body.classList.contains('theme-red')?'rgba(8,0,0,.09)':document.body.classList.contains('theme-blue')?'rgba(0,3,9,.09)':'rgba(0,4,2,.08)'}
+function matrix(){rc.fillStyle=themeTrail();rc.fillRect(0,0,rain.width,rain.height);rc.fillStyle=themeAccent();rc.font="14px monospace";drops.forEach((y,i)=>{rc.fillText(chars[(Math.random()*chars.length)|0],i*16,y*16);if(y*16>rain.height&&Math.random()>.975)drops[i]=0;drops[i]++})} setInterval(matrix,45);
+function loadThemePreference(){try{return localStorage.getItem('matrix-theme')}catch(e){return null}}
+function saveThemePreference(t){try{localStorage.setItem('matrix-theme',t)}catch(e){/* Theme still works when WebView storage is unavailable. */}}
+function applyTheme(t){document.body.classList.remove('theme-red','theme-blue');if(t==='red')document.body.classList.add('theme-red');if(t==='blue')document.body.classList.add('theme-blue');saveThemePreference(t)}
+function activateTheme(t){applyTheme(t);const overlay=document.getElementById('donationOverlay');document.getElementById('donationTitle').textContent=t==='red'?'YOU TOOK THE RED PILL':'YOU TOOK THE BLUE PILL';overlay.classList.add('show');overlay.style.display='flex';overlay.setAttribute('aria-hidden','false')}
+function escapeMatrix(){applyTheme('green');closeDonation();}
+function closeDonation(){const overlay=document.getElementById('donationOverlay');overlay.classList.remove('show');overlay.style.display='none';overlay.setAttribute('aria-hidden','true')}
+const donationMap={erc20:'0x59960b005519F7e3bEf269eFd577d3e2F8687eD7',solana:'GhPW8F1WVxtn27Lvgz9DSVF7K2Ry8XHMmShMNn6Y2vrB',btc:'bc1q3amhttk6zk0z2ffr4xz8655pjxguc8kga005u0',tah:'5ELuFz8SntDZdWWy3mWPi377LRKXvWhEfHJqXYEFtWiwDHTg'};
+function copyDonation(k){const v=donationMap[k];const row=document.querySelector(`.donrow[data-wallet="${k}"]`);const btn=row?row.querySelector('button'):null;const original=btn?btn.textContent:'COPY';const finish=()=>{if(btn){btn.textContent='COPIED';clearTimeout(btn._copiedTimer);btn._copiedTimer=setTimeout(()=>{btn.textContent=original},900)}};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(v).then(finish).catch(finish)}else{const a=document.createElement('textarea');a.value=v;document.body.appendChild(a);a.select();document.execCommand('copy');a.remove();finish()}}
+(function(){const t=loadThemePreference();if(t==='red'||t==='blue'){applyTheme(t);}document.getElementById('don-erc20').textContent=donationMap.erc20;document.getElementById('don-solana').textContent=donationMap.solana;document.getElementById('don-btc').textContent=donationMap.btc;document.getElementById('don-tah').textContent=donationMap.tah;})();
+let last={}; let lastRunId=null;
+function dismissMatrixAlert(overlayId){const overlay=document.getElementById(overlayId);if(overlay)overlay.classList.remove('show');const cv=document.getElementById(overlayId==='spotOverlay'?'runRainSpot':'runRain');if(cv){clearInterval(cv._rainTimer);clearTimeout(cv._rainHideTimer);if(cv._resizeRun)removeEventListener('resize',cv._resizeRun);cv._resizeRun=null;cv._rainTimer=null;}}
+function runRainBurst(canvasId,duration=4200){
+ const cv=document.getElementById(canvasId); const ctx=cv.getContext('2d'); const overlay=document.getElementById(canvasId==='runRainSpot'?'spotOverlay':'runOverlay');
+ const dpr=Math.max(1,window.devicePixelRatio||1); const chars2='アカサタナハマヤラワ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ<>/\\[]{}$#@%&*+-=';
+ function resizeRun(){cv.width=Math.floor(innerWidth*dpr);cv.height=Math.floor(innerHeight*dpr);cv.style.width=innerWidth+'px';cv.style.height=innerHeight+'px';ctx.setTransform(dpr,0,0,dpr,0,0);}
+ resizeRun(); const cols=Math.ceil(innerWidth/15); const drops2=Array(cols).fill(0).map(()=>Math.floor(Math.random()*-60)); const started=performance.now(); overlay.classList.add('show');
+ clearInterval(cv._rainTimer);clearTimeout(cv._rainHideTimer);
+ cv._rainTimer=setInterval(()=>{
+   const elapsed=performance.now()-started; if(elapsed>=duration){clearInterval(cv._rainTimer);cv._rainTimer=null;ctx.clearRect(0,0,innerWidth,innerHeight);return;}
+   ctx.fillStyle='rgba(0,0,0,.14)';ctx.fillRect(0,0,innerWidth,innerHeight);
+   const accent=themeAccent(); ctx.fillStyle=accent;ctx.shadowColor=accent;ctx.shadowBlur=7;ctx.font='14px monospace';
+   drops2.forEach((y,i)=>{const x=i*15; const ch=chars2[(Math.random()*chars2.length)|0]; ctx.fillText(ch,x,y*15); drops2[i]++; if(y*15>innerHeight && Math.random()>.93)drops2[i]=Math.floor(Math.random()*-20);});
+   ctx.shadowBlur=0;
+ },35);
+ cv._resizeRun=resizeRun;addEventListener('resize', resizeRun, {once:false});
+ cv._rainHideTimer=setTimeout(()=>dismissMatrixAlert(canvasId==='runRainSpot'?'spotOverlay':'runOverlay'),duration+100);
+}
+let observedMinerStatus=false;
+function setActiveCharacter(active){document.getElementById('neoFigure')?.classList.toggle('show',active);document.querySelector('.headerMeta')?.classList.toggle('active',active)}
+function checkRunTransition(s){
+ const rid=s.run_id||null;
+ if(!observedMinerStatus){observedMinerStatus=true;lastRunId=s.status==='ACTIVE'?(rid||'ACTIVE'):null;return;}
+ if(s.status==='ACTIVE' && !lastRunId){
+   const box=document.getElementById('runOverlay');
+   document.getElementById('runBox').innerHTML='&gt;&gt;&gt; RUN DETECTED &lt;&lt;&lt;<span class="small">'+String(rid||'ACTIVE').replace(/[<>&]/g,'')+' · INITIALISING NETWORK TELEMETRY…</span><button class="transitionDismiss" onclick="dismissMatrixAlert(\'runOverlay\')">DISMISS</button>';
+   runRainBurst('runRain',4200);
+ }
+ lastRunId=s.status==='ACTIVE' ? (rid||'ACTIVE') : null;
+}
+let currentMinerId='local';
+async function detectBittensorWallets(autoApplySingle=false){const msg=document.getElementById('walletDetectMsg'),sel=document.getElementById('bittensorWallets');msg.textContent='SCANNING ~/.BITTENSOR/WALLETS…';try{const r=await fetch('/api/wallets');const d=await r.json();sel.innerHTML='<option value="">Choose a Bittensor wallet and hotkey</option>';if(!d.wallets||!d.wallets.length){msg.textContent=d.error||'NO PUBLIC WALLET ADDRESSES FOUND';return}d.wallets.forEach((w,i)=>{const o=document.createElement('option');o.value=String(i);o.textContent=w.label;sel.appendChild(o)});sel._wallets=d.wallets;if(autoApplySingle&&d.wallets.length===1&&!document.getElementById('cfg_hotkey').value){sel.value='0';applyBittensorWallet();msg.textContent='ONE PUBLIC HOTKEY/COLDKEY PAIR FOUND · REVIEW AND CLICK SAVE CONFIGURATION'}else{msg.textContent=`FOUND ${d.wallets.length} HOTKEY${d.wallets.length===1?'':'S'} · CHOOSE ONE, THEN SAVE CONFIGURATION`}}catch(e){msg.textContent='WALLET SCAN FAILED'}}
+function applyBittensorWallet(){const sel=document.getElementById('bittensorWallets'),w=(sel._wallets||[])[Number(sel.value)];if(!w)return;document.getElementById('cfg_hotkey').value=w.hotkey;document.getElementById('cfg_coldkey').value=w.coldkey;document.getElementById('walletDetectMsg').textContent='PUBLIC HOTKEY AND COLDKEY FILLED · CLICK SAVE CONFIGURATION'}
+async function loadConfig(){
+ try{
+  const r=await fetch('/api/config?miner='+encodeURIComponent(currentMinerId)); const c=await r.json();
+  document.getElementById('minername').textContent=c.name||'MINER';
+  document.getElementById('cfg_name').value=c.name||'';
+  document.getElementById('cfg_id').value=c.miner_id||'';
+  document.getElementById('cfg_hotkey').value=c.hotkey||'';
+  document.getElementById('hotkeysource').textContent=c.hotkey_source||'USER CONFIGURED';
+  document.getElementById('cfg_coldkey').value=c.coldkey||'';
+  document.getElementById('cfg_log_dir').value=c.log_dir_configured||'';
+  document.getElementById('cfg_log_dir').disabled=currentMinerId!=='local';
+  if(currentMinerId==='local'&&!c.hotkey)detectBittensorWallets(true);
+  document.getElementById('autoDetectButton').disabled=currentMinerId!=='local';
+  document.getElementById('logpathsource').textContent=currentMinerId!=='local'?'LOGS READ ON THE MINER MAC':(c.log_dir_auto?'AUTO-DETECTED · ':'CONFIGURED · ')+(c.log_dir||'NO LOG FOLDER FOUND');
+ }catch(e){}
+}
+async function saveConfig(){
+ const body={name:document.getElementById('cfg_name').value,miner_id:document.getElementById('cfg_id').value,hotkey:document.getElementById('cfg_hotkey').value,coldkey:document.getElementById('cfg_coldkey').value,log_dir:document.getElementById('cfg_log_dir').value.trim()};
+ try{const r=await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json','X-Monitor-Token':'__LOCAL_TOKEN__'},body:JSON.stringify(body)});const c=await r.json();document.getElementById('cfgmsg').textContent=c.ok?'SAVED · RELOADING TELEMETRY…':(c.error||'ERROR');if(c.ok)setTimeout(()=>location.reload(),350)}catch(e){document.getElementById('cfgmsg').textContent='SAVE FAILED'}
+}
+async function autoDetectLogs(){document.getElementById('cfg_log_dir').value='';document.getElementById('logpathsource').textContent='AUTO-DETECTING…';await saveConfig()}
+let queueChartState={pts:[],dayStart:0,dayEnd:0,cw:0,ch:0,padL:52,padR:22,padT:22,padB:32,hoverIndex:-1};
+function drawQueue(series, hoverIndex=queueChartState.hoverIndex){
+ const c=document.getElementById('queueChart'),dpr=devicePixelRatio||1,cw=c.clientWidth,ch=c.clientHeight,w=cw*dpr,h=ch*dpr;
+ c.width=w;c.height=h;
+ const x=c.getContext('2d');x.clearRect(0,0,w,h);
+ const {padL,padR,padT,padB}=queueChartState;
+ x.strokeStyle='#176e36';x.lineWidth=1*dpr;
+ for(let i=0;i<5;i++){let y=(padT+i*(ch-padT-padB)/4)*dpr;x.beginPath();x.moveTo(padL*dpr,y);x.lineTo((cw-padR)*dpr,y);x.stroke()}
+ const pts=(series||[]).map(p=>({ts:Number(p.ts),v:Number(p.position)})).filter(p=>Number.isFinite(p.ts)&&Number.isFinite(p.v));
+ const dayStart=(()=>{const now=new Date(); return new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime()/1000})();
+ const dayEnd=dayStart+86400;
+ const todayPts=pts.filter(p=>p.ts>=dayStart&&p.ts<dayEnd).sort((a,b)=>a.ts-b.ts);
+ queueChartState={pts:todayPts,dayStart,dayEnd,cw,ch,padL,padR,padT,padB,hoverIndex};
+ x.font=`${11*dpr}px monospace`;x.fillStyle='#37b75c';x.textBaseline='middle';
+ ['00:00','04:00','08:00','12:00','16:00','20:00','24:00'].forEach((lab,i)=>{const xx=padL+(cw-padL-padR)*(i/6);x.fillText(lab,(xx-12)*dpr,(ch-padB+17)*dpr)});
+ if(!todayPts.length){x.fillText('NO QUEUE POINTS RECORDED TODAY',(cw/2-130)*dpr,(ch/2)*dpr);return}
+ const maxV=Math.max(...todayPts.map(p=>p.v),1),span=Math.max(1,maxV);
+ x.fillText(String(Math.round(maxV)),8*dpr,padT*dpr);x.fillText('0',8*dpr,(ch-padB)*dpr);
+ const posToXY=p=>{const sec=p.ts-dayStart;return {x:(padL+(cw-padL-padR)*(sec/86400)),y:(ch-padB-(ch-padB-padT)*(p.v/span))}};
+ x.strokeStyle='#62ff8a';x.lineWidth=2*dpr;x.beginPath();
+ todayPts.forEach((p,i)=>{const q=posToXY(p),xx=q.x*dpr,yy=q.y*dpr;i===0?x.moveTo(xx,yy):x.lineTo(xx,yy)});x.stroke();
+ x.fillStyle='#62ff8a';todayPts.forEach(p=>{const q=posToXY(p);x.fillRect(q.x*dpr-2*dpr,q.y*dpr-2*dpr,4*dpr,4*dpr)});
+ const latest=todayPts[todayPts.length-1];
+ x.fillText(`LATEST ${Math.round(latest.v).toLocaleString()}`,Math.max(padL,cw-padR-92)*dpr,padT*dpr);
+ if(hoverIndex>=0 && hoverIndex<todayPts.length){
+   const p=todayPts[hoverIndex],q=posToXY(p);
+   x.strokeStyle=themeAccent();x.lineWidth=1*dpr;x.setLineDash([4*dpr,4*dpr]);x.beginPath();x.moveTo(q.x*dpr,padT*dpr);x.lineTo(q.x*dpr,(ch-padB)*dpr);x.stroke();x.setLineDash([]);
+   x.fillStyle=themeAccent();x.beginPath();x.arc(q.x*dpr,q.y*dpr,5*dpr,0,Math.PI*2);x.fill();
+   const dt=new Date(p.ts*1000);
+   const hh=String(dt.getHours()).padStart(2,'0'),mm=String(dt.getMinutes()).padStart(2,'0'),ss=String(dt.getSeconds()).padStart(2,'0');
+   const label=`${hh}:${mm}:${ss}  QUEUE ${Math.round(p.v).toLocaleString()}`;
+   x.font=`${11*dpr}px monospace`;const tw=x.measureText(label).width/dpr;
+   let bx=q.x+10,by=Math.max(padT+16,q.y-18);if(bx+tw+16>cw-padR)bx=q.x-tw-18;
+   x.fillStyle='rgba(0,10,5,.96)';x.strokeStyle='#62ff8a';x.lineWidth=1*dpr;
+   x.beginPath();x.rect(bx*dpr,(by-13)*dpr,(tw+16)*dpr,22*dpr);x.fill();x.stroke();
+   x.fillStyle=themeAccent();x.fillText(label,(bx+8)*dpr,by*dpr);
+ }
+}
+function bindQueueHover(){
+ const c=document.getElementById('queueChart'); if(!c || c.dataset.hoverBound)return;
+ c.dataset.hoverBound='1';
+ c.addEventListener('mousemove',ev=>{
+   const st=queueChartState;if(!st.pts.length)return;
+   const rect=c.getBoundingClientRect(),mx=ev.clientX-rect.left;
+   const usable=st.cw-st.padL-st.padR;
+   const sec=Math.max(0,Math.min(86400,((mx-st.padL)/usable)*86400));
+   let best=0,bestDist=Infinity;
+   st.pts.forEach((p,i)=>{const px=st.padL+usable*((p.ts-st.dayStart)/86400);const d=Math.abs(px-mx);if(d<bestDist){bestDist=d;best=i}});
+   if(best!==st.hoverIndex)drawQueue(st.pts,best);
+ });
+ c.addEventListener('mouseleave',()=>{if(queueChartState.hoverIndex!==-1)drawQueue(queueChartState.pts,-1)});
+}
+async function loadQueue(){try{const r=await fetch('/api/queue_history?miner='+encodeURIComponent(currentMinerId));const q=await r.json();drawQueue(q);bindQueueHover()}catch(e){drawQueue([]);bindQueueHover()}}
+function escHtml(v){return String(v??'').replace(/[&<>\"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
+function setTextIfChanged(el,text){if(el&&el.textContent!==String(text))el.textContent=String(text)}
+function setHtmlIfChanged(el,key,html){if(!el||el.dataset.renderKey===key)return false;el.dataset.renderKey=key;el.innerHTML=html;return true}
+function renderRuns(rows,currentId,updatedAt){
+ const el=document.getElementById('runAvailability'); if(!el)return;
+ const updated=document.getElementById('runPerfUpdated');setTextIfChanged(updated,updatedAt?' · UPDATED '+Math.max(0,Math.floor(Date.now()/1000-Number(updatedAt)))+' SEC AGO':' · WAITING FOR API');
+ const signature=JSON.stringify([rows||[],currentId||null]);
+ if(!rows||!rows.length){setHtmlIfChanged(el,signature,'<div class="sub">NO RUN AVAILABILITY DATA</div>');return;}
+ let h='<div style="overflow:auto"><table class="runsTable"><thead><tr><th>RUN</th><th>TIER</th><th>STATE</th><th>ACTIVE / MAX</th><th>SPACES</th><th>GLOBAL ACTS / TOKENS</th><th>LOSS</th><th>RUN SIGNAL</th></tr></thead><tbody>';
+ rows.forEach(r=>{
+   const current=currentId && r.run_id===currentId;
+   const max=r.max_miners==null?'—':fmt(r.max_miners), active=r.active_miners==null?'—':fmt(r.active_miners), slots=r.slots_remaining==null?'—':fmt(r.slots_remaining);
+   const cls=(typeof r.slots_remaining==='number'?(r.slots_remaining>0?'spotOpen':'spotFull'):'spotUnknown');
+   const p=r.performance||{},perf=p.activations!=null||p.tokens!=null?`${p.activations==null?'—':fmt(p.activations)} / ${p.tokens==null?'—':fmt(p.tokens)}`:'—';
+   const age=r.progress_unchanged_minutes==null?'':` · ${Number(r.progress_unchanged_minutes).toFixed(0)}m`;
+   const signal=r.health_signal||'—', signalClass=signal==='PROGRESSING'?'good':signal.includes('CHECK')||signal.includes('NO ACTIVE')?'warn':'';
+   h+=`<tr class="${current?'currentRun':''}"><td>${escHtml(r.run_id)}${current?'<span class="runBadge">YOU ARE HERE</span>':''}</td><td class="runTier">${escHtml(r.tier||'UNKNOWN')}</td><td>${escHtml(r.state||'—')}</td><td>${active} / ${max}</td><td class="${cls}">${slots}</td><td>${perf}</td><td>${p.loss==null?'—':Number(p.loss).toFixed(5)}</td><td class="${signalClass}">${escHtml(signal+age)}</td></tr>`;
+ });
+ h+='</tbody></table></div>';setHtmlIfChanged(el,signature,h);
+}
+function openMinerLookup(){
+ const page=document.getElementById('minerLookupPage');page.classList.add('show');
+ try{document.getElementById('lookupHotkey').value=localStorage.getItem('iota.lookup.hotkey')||'';document.getElementById('lookupColdkey').value=localStorage.getItem('iota.lookup.coldkey')||'';}
+ catch(e){}
+ refreshLookupRuns();
+}
+function closeMinerLookup(){document.getElementById('minerLookupPage').classList.remove('show')}
+async function refreshLookupRuns(){
+ const select=document.getElementById('lookupRun'),selected=select.value;
+ try{const r=await fetch('/api/state?miner=local'),s=await r.json(),rows=s.run_availability||[];select.innerHTML='<option value="">AUTO-DETECT FROM HOTKEY</option>';
+  rows.forEach(x=>{const o=document.createElement('option');o.value=x.run_id;o.textContent=`${x.run_id} · ${x.tier||'UNKNOWN'} · ${x.slots_remaining==null?'?':x.slots_remaining+' open'}`;select.appendChild(o)});
+  if(selected&&Array.from(select.options).some(o=>o.value===selected))select.value=selected;else select.value='';
+ }catch(e){select.innerHTML='<option value="">AUTO-DETECT FROM HOTKEY</option>'}
+}
+function renderMinerLookup(d){
+ const el=document.getElementById('lookupResult');
+ if(!d.found){el.innerHTML=`<div class="lookupError">${escHtml(d.message||'Miner not found in this run.')}</div>`;return}
+ const r=d.record||{},rank=r.epoch_rank==null?'NOT EXPOSED BY RETURNED API FIELDS':fmt(r.epoch_rank);
+ const cards=[['RUN / LAYER',`${r.run_id||'—'} / ${r.layer==null?'—':r.layer}`],['MINER UID',r.miner_uid??'—'],['EPOCH RANK',rank],['LAYER ACTIVATION STANDING',r.activation_standing==null?'—':`${r.activation_standing} of ${r.same_layer_miners_in_snapshot||'?'}`],['ACTIVATIONS',r.activation_count==null?'—':fmt(r.activation_count)],['THROUGHPUT',r.throughput==null?'—':fmt(r.throughput)],['INCENTIVE / SCORE',r.incentive==null?'—':Number(r.incentive).toPrecision(5)],['API ACTIVE FLAG',r.is_active==null?'—':String(r.is_active).toUpperCase()],['ACTIVE SAME-LAYER RECORDS',r.active_same_layer==null?'—':fmt(r.active_same_layer)],['API COLDKEY',r.coldkey||'—'],['RECORD AGE',r.sample_timestamp==null?'—':Math.max(0,Math.floor(Date.now()/1000-Number(r.sample_timestamp)))+' sec']];
+ let h='<div class="lookupStats">'+cards.map(([label,value])=>`<div class="lookupStat"><div class="label">${escHtml(label)}</div><div class="value">${escHtml(value)}</div></div>`).join('')+'</div>';
+ h+=`<div class="sub">STANDING BASIS: ${escHtml(r.activation_standing_basis||'—')} · FETCHED ${new Date(Number(r.api_sampled_at||Date.now()/1000)*1000).toLocaleString()}</div>`;
+ const pts=Array.isArray(r.epoch_points)?r.epoch_points:[];
+ h+='<h2>HOTKEY-SCOPED EPOCH METRIC SAMPLES</h2>';
+ h+=pts.length?'<div style="overflow:auto"><table class="lookupTable"><thead><tr><th>API TIME / EPOCH FIELD</th><th>ACTIVATIONS</th></tr></thead><tbody>'+pts.slice(-30).reverse().map(p=>`<tr><td>${escHtml(p.ts)}</td><td>${p.network_activations==null?'—':fmt(p.network_activations)}</td></tr>`).join('')+'</tbody></table></div>':`<div class="sub">${r.epoch_metrics_available?'The scoped endpoint returned no activation series recognized by this app.':'Epoch metrics unavailable'+(r.epoch_metrics_error?' · '+escHtml(r.epoch_metrics_error):'')}.</div>`;
+ el.innerHTML=h;
+}
+async function lookupPublicMiner(){
+ const hk=document.getElementById('lookupHotkey').value.trim(),ck=document.getElementById('lookupColdkey').value.trim(),rid=document.getElementById('lookupRun').value;
+ const msg=document.getElementById('lookupMessage'),button=document.getElementById('lookupButton');
+ try{localStorage.setItem('iota.lookup.hotkey',hk);localStorage.setItem('iota.lookup.coldkey',ck)}catch(e){}
+ if(!hk){msg.textContent='ENTER THE MINER HOTKEY';return}
+ msg.textContent=rid?'FETCHING PUBLIC RUN RECORD…':'SEARCHING PUBLIC RUNS FOR THIS HOTKEY…';button.disabled=true;
+ try{const res=await fetch('/api/miner_lookup',{method:'POST',headers:{'Content-Type':'application/json','X-Monitor-Token':'__LOCAL_TOKEN__'},body:JSON.stringify({hotkey:hk,coldkey:ck,run_id:rid})}),data=await res.json();if(!res.ok||data.ok===false)throw new Error(data.error||'API lookup failed');renderMinerLookup(data);msg.textContent=data.found?`FOUND IN RUN ${data.record.run_id} · PUBLIC API SNAPSHOT`:'NO CURRENT RUN MATCH · '+(data.scanned_runs||0)+' RUNS SEARCHED'}
+ catch(e){document.getElementById('lookupResult').innerHTML=`<div class="lookupError">${escHtml(e.message||'LOOKUP FAILED')}</div>`;msg.textContent='LOOKUP FAILED'}
+ finally{button.disabled=false}
+}
+function showTime(ts){return ts?new Date(Number(ts)*1000).toLocaleString():'—'}
+function renderRunHistory(rows){
+ const el=document.getElementById('runHistory');if(!el)return;
+ const history=Array.isArray(rows)?rows.slice(0,12):[],signature=JSON.stringify(history);
+ if(el.dataset.renderKey===signature)return;
+ if(!history.length){setHtmlIfChanged(el,signature,'<div class="sub">NO RUNS RECORDED YET · A RUN ENTRY APPEARS WHEN THE LOCAL LOG REPORTS ACTIVE.</div>');return;}
+ const scrollPositions=new Map([...el.querySelectorAll('[data-scroll-key]')].map(node=>[node.dataset.scrollKey,node.scrollTop]));
+ const visibleRecord=[...el.querySelectorAll('[data-run-key]')].find(node=>{const r=node.getBoundingClientRect();return r.bottom>0&&r.top<innerHeight});
+ const visibleKey=visibleRecord?.dataset.runKey,visibleTop=visibleRecord?.getBoundingClientRect().top;
+ const html=history.map((r,i)=>{
+  const h=r.health||{},context=Array.isArray(r.context)?r.context:[];
+  const scrollKey=escHtml(String(r.run_id||'UNKNOWN')+'-'+String(r.started_at||i));
+  const runtime=r.started_at&&r.ended_at?Math.max(0,Number(r.ended_at)-Number(r.started_at)):null;
+  const newer=rows[i-1],recovery=r.outcome==='KICKED'&&newer&&newer.started_at?Math.max(0,Number(newer.started_at)-Number(r.ended_at||0)):null;
+  const duration=runtime==null?'':` · SESSION ${(runtime/60).toFixed(1)} MIN`;
+  const recoveryText=recovery==null?'':` · REJOINED AFTER ${(recovery/60).toFixed(1)} MIN`;
+  const upAge=h.latest_upload_age_s==null?'age unknown':h.latest_upload_age_s<60?Math.round(h.latest_upload_age_s)+'s old':Math.round(h.latest_upload_age_s/60)+'m old';
+  const healthBits=[h.sample_count?`${h.sample_count} health samples in prior 5 min · last ${h.last_sample_age_s==null?'?':h.last_sample_age_s+'s'} before event`:null,h.router_max_ms!=null?`router peak ${Number(h.router_max_ms).toFixed(1)} ms`:null,h.peer_min_pct!=null?`peer low ${Number(h.peer_min_pct).toFixed(0)}%`:null,h.load1_max!=null?`system load peak ${Number(h.load1_max).toFixed(2)} / ${h.cpu_cores||'?'} cores`:null,h.mem_free_pct_min!=null?`memory free low ${Number(h.mem_free_pct_min).toFixed(0)}%`:null,h.latest_upload_mbps!=null?`last T@H upload result ${Number(h.latest_upload_mbps).toFixed(2)} Mbps (${upAge})`:null].filter(Boolean).join(' · ');
+  const contextHtml=context.length?'<div class="runContext" data-scroll-key="'+scrollKey+'-context">'+context.map(x=>escHtml(x.time+' '+x.text)).join('\n')+'</div>':'<div class="sub">No warning/error log lines captured in the five minutes before this event.</div>';
+  return `<div class="runRecord" data-run-key="${scrollKey}"><div class="runRecordTitle">${escHtml(r.outcome||'ACTIVE')} · RUN ${escHtml(r.run_id||'UNKNOWN')}</div><div class="sub">STARTED ${escHtml(showTime(r.started_at))}${r.ended_at?' · ENDED '+escHtml(showTime(r.ended_at)):''}${escHtml(duration+recoveryText)}</div>${r.detail?'<div class="runContext" data-scroll-key="'+scrollKey+'-detail">'+escHtml(r.detail)+'</div>':''}${healthBits?'<div class="runHealth">'+escHtml(healthBits)+'</div>':''}${contextHtml}</div>`;
+ }).join('');
+ el.dataset.renderKey=signature;el.innerHTML=html;
+ el.querySelectorAll('[data-scroll-key]').forEach(node=>{const value=scrollPositions.get(node.dataset.scrollKey);if(value!=null)node.scrollTop=value});
+ if(visibleKey&&visibleTop!=null){const node=[...el.querySelectorAll('[data-run-key]')].find(item=>item.dataset.runKey===visibleKey);if(node)window.scrollBy(0,node.getBoundingClientRect().top-visibleTop)}
+}
+const spotState={}; let spotAlertTimer=null;
+function showSpotAlert(r){
+ const box=document.getElementById('spotOverlay'); if(!box)return;
+ document.getElementById('spotBox').innerHTML='&gt;&gt;&gt; SPOTS AVAILABLE &lt;&lt;&lt;<span class="small">'+escHtml(r.run_id)+' · '+escHtml(r.tier||'UNKNOWN')+' · '+fmt(r.slots_remaining)+' SLOT'+(Number(r.slots_remaining)===1?'':'S')+' OPEN</span>';
+ box.classList.add('show'); runRainBurst('runRainSpot',4200); clearTimeout(spotAlertTimer); spotAlertTimer=setTimeout(()=>dismissMatrixAlert('spotOverlay'),4200);
+}
+function fmt(n){return n==null?'—':Number(n).toLocaleString()}
+function draw(series){
+ const c=document.getElementById('chart'), dpr=devicePixelRatio||1, w=c.clientWidth*dpr,h=c.clientHeight*dpr;c.width=w;c.height=h;
+ const x=c.getContext('2d');x.clearRect(0,0,w,h); if(!series.length)return;
+ const vals=series.map(a=>(a.network_activations!=null?a.network_activations:a.activations)||0), max=Math.max(...vals,1), min=Math.min(...vals), pad=25;
+ x.strokeStyle="#176e36";x.lineWidth=1;
+ for(let i=0;i<5;i++){let y=pad+i*(h-pad*2)/4;x.beginPath();x.moveTo(0,y);x.lineTo(w,y);x.stroke()}
+ x.strokeStyle=themeAccent();x.lineWidth=2;x.beginPath();
+ vals.forEach((v,i)=>{let xx=pad+(w-pad*2)*(i/Math.max(vals.length-1,1));let yy=h-pad-(h-pad*2)*((v-min)/Math.max(max-min,1));i?x.lineTo(xx,yy):x.moveTo(xx,yy)});x.stroke();
+}
+window.latestRunComparison=null;
+function renderRunComparison(data){
+ const summary=document.getElementById('runRankSummary'),meta=document.getElementById('runRankMeta'),metrics=document.getElementById('runComparisonMetrics'),chart=document.getElementById('runComparisonChart');
+ if(!data||!data.found){summary.textContent='RUN '+(data&&data.run_id||'—')+' · WAITING FOR YOUR MINER IN THE PUBLIC RUN SNAPSHOT';meta.textContent=data&&data.error?'API '+data.error:'The rank and peer chart appear when the run API returns your hotkey.';metrics.innerHTML='';chart.className='runComparisonEmpty';chart.textContent='No matching miner row has been published for this run yet.';return}
+ const layer=data.layer==null?'UNKNOWN':String(data.layer).startsWith('L')?String(data.layer):'L'+data.layer;
+ const epochRank=data.epoch_rank==null?null:Number(data.epoch_rank),activationRank=data.activation_rank==null?null:Number(data.activation_rank),rankCount=Number(data.activation_rank_count||0);
+ summary.textContent=epochRank!=null?'API EPOCH RANK #'+fmt(epochRank)+' · '+layer+' · ACTIVATION STANDING #'+(activationRank==null?'—':fmt(activationRank))+' OF '+fmt(rankCount):activationRank!=null?'LAYER ACTIVATION STANDING #'+fmt(activationRank)+' OF '+fmt(rankCount)+' · '+layer:'RANK NOT EXPOSED · '+layer;
+ meta.textContent='RUN '+(data.run_id||'—')+' · '+fmt(data.same_layer_count||0)+' SAME-LAYER API RECORDS · '+(data.sampled_at?new Date(Number(data.sampled_at)*1000).toLocaleTimeString():'SAMPLE TIME UNKNOWN')+' · '+(data.rank_basis||'CURRENT API SNAPSHOT');
+ const m=data.metrics||{},value=v=>v==null?'—':Number(v).toLocaleString(undefined,{maximumFractionDigits:2});
+ metrics.innerHTML=[['ACTIVATIONS',m.activations],['THROUGHPUT · API VALUE',m.throughput],['INCENTIVE / SCORE',m.incentive]].map(([label,v])=>'<div class="runMetricCard"><div class="label">'+label+'</div><div class="value">'+value(v)+'</div></div>').join('');
+ const key=document.getElementById('runMetricSelect').value||'activations',label={activations:'ACTIVATIONS',throughput:'THROUGHPUT · API VALUE',incentive:'INCENTIVE / SCORE'}[key]||key;
+ const rows=(data.miners||[]).filter(r=>r[key]!=null).sort((a,b)=>Number(b[key])-Number(a[key]));
+ const own=rows.find(r=>r.is_miner);
+ if(!rows.length||!own){chart.className='runComparisonEmpty';chart.textContent='The API has not supplied '+label.toLowerCase()+' for enough same-layer miners to compare yet.';return}
+ let shown=rows.slice(0,9);if(!shown.some(r=>r.is_miner))shown=[...shown.slice(0,8),own];shown.sort((a,b)=>Number(b[key])-Number(a[key]));
+ const max=Math.max(...shown.map(r=>Number(r[key])),1);
+ chart.className='runComparisonBars';chart.innerHTML='<div class="label">'+label+' · '+shown.length+' SAME-LAYER MINERS</div>'+shown.map(r=>{const width=Math.max(1,100*Number(r[key])/max),mine=r.is_miner;return '<div class="runCompareRow '+(mine?'mine':'')+'"><div class="runCompareLabel">'+escHtml(mine?'YOU · '+(document.getElementById('cfg_name').value||'MINER'):r.label||'PEER')+'</div><div class="runCompareTrack"><div class="runCompareFill" style="width:'+width.toFixed(1)+'%"></div></div><div class="runCompareValue">'+value(r[key])+'</div></div>'}).join('');
+}
+let lastRunComparisonKey='';
+function updateActiveRunComparison(s){
+ const configured=Boolean(s.hotkey&&String(s.hotkey).trim()),active=configured&&s.status==='ACTIVE';
+ const section=document.getElementById('activeRunSection');section.style.display=active?'':'none';
+ if(!active){window.latestRunComparison=null;lastRunComparisonKey='';return}
+ const data=s.run_comparison||null;window.latestRunComparison=data;
+ const key=JSON.stringify([s.run_id,data,s.run_comparison_error||'']);
+ if(key!==lastRunComparisonKey){renderRunComparison(data?{...data,error:s.run_comparison_error}:{found:false,run_id:s.run_id,error:s.run_comparison_error});lastRunComparisonKey=key}
+}
+async function poll(){
+ try{
+  const r=await fetch('/api/state?miner='+encodeURIComponent(currentMinerId)); const s=await r.json();
+  const logsAvailable=Array.isArray(s.log_files)&&s.log_files.length>0;
+  const minerConfigured=Boolean(s.hotkey&&String(s.hotkey).trim());
+  document.querySelectorAll('[data-log-dependent]').forEach(el=>{el.style.display=logsAvailable?'':'none'});
+  document.querySelectorAll('[data-miner-dependent]').forEach(el=>{el.style.display=logsAvailable&&minerConfigured?'':'none'});
+  checkRunTransition(s);
+  setActiveCharacter(Boolean(minerConfigured&&s.status==='ACTIVE'&&s.run_id));
+  updateActiveRunComparison(s);
+  renderRuns(s.run_availability||[],s.run_id||null,s.run_availability_updated_at);
+  renderRunHistory(s.run_history||[]);
+  if(Array.isArray(s.run_availability)){ s.run_availability.forEach(r=>{ const prev=spotState[r.run_id]; spotState[r.run_id]=r.slots_remaining; if(typeof prev==='number' && prev<=0 && typeof r.slots_remaining==='number' && r.slots_remaining>0) showSpotAlert(r); }); }
+  document.getElementById('status').textContent=s.status||'UNKNOWN';
+  document.getElementById('status').className='value '+(s.status==='ACTIVE'?'good':s.status==='QUEUED'?'warn':'bad');
+  document.getElementById('queue').textContent=fmt(s.queue_position);
+  document.getElementById('acts').textContent=s.network_activations!=null?fmt(s.network_activations):'—';
+  document.getElementById('throughput').textContent=s.network_throughput!=null?fmt(s.network_throughput):'—';
+  const metricAge=s.network_metrics_updated_at?Math.max(0,Math.floor(Date.now()/1000-Number(s.network_metrics_updated_at))):null;
+  const metricFreshness=metricAge==null?'NO SUCCESSFUL METRIC REFRESH':metricAge>600?'STALE · LAST UPDATED '+Math.floor(metricAge/60)+' MIN AGO':'UPDATED '+metricAge+' SEC AGO';
+  const metricSource=(s.network_source||'NO VERIFIED SOURCE')+' · '+metricFreshness+(s.network_poll_error?' · '+s.network_poll_error:'');
+  document.getElementById('actsource').textContent=metricSource+' · '+(s.network_endpoint||'NO ACTIVATION ENDPOINT');
+  document.getElementById('throughsource').textContent=metricSource+' · '+(s.network_throughput_source||'NO THROUGHPUT ENDPOINT');
+  document.getElementById('netsource').textContent=s.network_source||'NO VERIFIED SOURCE';
+  document.getElementById('apiendpoint').textContent=s.network_endpoint||'—';
+  document.getElementById('netlast').textContent=s.network_last_checked||'—';
+  const nd=s.network_diagnostics||{}; const df=['miners','epoch_metrics','throughput','entitlements'].filter(k=>nd[k]).map(k=>k+':'+String(nd[k]).slice(0,42)); const mf=(s.network_metric_fields||[]); if(mf.length) df.push('FIELDS:'+mf.join(',')); document.getElementById('netdiag').textContent=df.join(' · ')||'—';
+  document.getElementById('netapi').textContent=s.network_ok?'ONLINE':'OFFLINE';
+  document.getElementById('netapi').className='value '+(s.network_ok?'good':'bad');
+  document.getElementById('fwd').textContent=s.network_activations_fwd!=null?fmt(s.network_activations_fwd):'—';
+  document.getElementById('bwd').textContent=s.network_activations_bwd!=null?fmt(s.network_activations_bwd):'—';
+  document.getElementById('localacts').textContent=fmt(s.local_activations||0);
+  document.getElementById('localrate').textContent=fmt(s.local_activations_rate||0);
+  document.getElementById('fwd2').textContent=fmt(s.activations_fwd||0);
+  document.getElementById('bwd2').textContent=fmt(s.activations_bwd||0);
+  document.getElementById('run').textContent=(s.run_id||'—')+(s.epoch!=null?' / E'+s.epoch:'');
+  document.getElementById('peers').textContent=(s.peer_ok!=null&&s.peer_total!=null)?`${s.peer_ok}/${s.peer_total}`:'—';
+  document.getElementById('api').textContent=s.protocol_ok?'ONLINE':'OFFLINE';
+  document.getElementById('api').className='value '+(s.protocol_ok?'good':'bad');
+  document.getElementById('down').textContent=s.download_mbps!=null?Number(s.download_mbps).toFixed(2):'—';
+  document.getElementById('up').textContent=s.upload_mbps!=null?Number(s.upload_mbps).toFixed(2):'—';
+  document.getElementById('peerpct').textContent=s.peer_pct!=null?Number(s.peer_pct).toFixed(0)+'%':'—';
+  document.getElementById('device').textContent=s.device||'—';
+  document.getElementById('routerlat').textContent=s.router_latency_ms!=null?Number(s.router_latency_ms).toFixed(1)+' ms':'—';
+  document.getElementById('routergw').textContent=s.router_gateway?('GATEWAY '+s.router_gateway):'ROUTER NOT FOUND';
+  document.getElementById('apilat').textContent='OFF';
+  document.getElementById('apilat2').textContent='NO EXTRA WAN PROBES';
+  document.getElementById('layer').textContent=s.layer||'—';
+  document.getElementById('qe').textContent=fmt(s.queue_events);
+  document.getElementById('re').textContent=fmt(s.registration_errors);
+  const c=s.shit_counts||{};
+  const rows=[
+    ['REGISTRATION FAILURES',c['REGISTRATION FAILURES']||0],
+    ['QUEUE RESETS',c['QUEUE RESETS']||0],
+    ['P2P TIMEOUTS',c['P2P TIMEOUTS']||0],
+    ['ACTIVATION ERRORS',c['ACTIVATION ERRORS']||0],
+    ['MINER KICKS',c['MINER KICKS']||0]
+  ];
+  const total=rows.reduce((a,b)=>a+Number(b[1]||0),0);
+  const pad=(v,n)=>String(v).padStart(n,' ');
+  const width=44;
+  const label='SHITS GONE WRONG COUNTER™';
+  const line=(txt)=>'║'+txt.padEnd(width,' ').slice(0,width)+'║';
+  const centre=(txt)=>{const left=Math.max(0,Math.floor((width-txt.length)/2));return ' '.repeat(left)+txt};
+  const stat=(name,n)=>line(name.padEnd(27,' ')+pad(n,5)+'   ');
+  const ascii=[
+    '╔'+('═'.repeat(width))+'╗',
+    line(centre(label)),
+    line(''),
+    line(centre(String(total))),
+    line(centre('TOTAL SHITS GONE WRONG')),
+    line(''),
+    stat('REGISTRATION FAILURES',rows[0][1]),
+    stat('QUEUE RESETS',rows[1][1]),
+    stat('P2P TIMEOUTS',rows[2][1]),
+    stat('ACTIVATION ERRORS',rows[3][1]),
+    stat('MINER KICKS',rows[4][1]),
+    '╚'+('═'.repeat(width))+'╝'
+  ];
+  setTextIfChanged(document.getElementById('shitAscii'),ascii.join('\n'));
+  setTextIfChanged(document.getElementById('shitMeta'),(s.shit_replayed?('HISTORICAL LOG REPLAY COMPLETE · '+fmt(s.shit_source_lines)+' LOG LINES ANALYSED'):'LIVE COUNTER · HISTORICAL REPLAY COMPLETE'));
+  const d=s.shit_details||{};
+  const recent=rows.map(([k])=>{const x=d[k]||{};return x.last_time?`${k} · ${x.last_time}\n${x.last_detail||''}`:''}).filter(Boolean);
+  setTextIfChanged(document.getElementById('shitDetail'),recent.length?recent.slice(0,5).join('\n\n'):'No matching historical error events found.');
+  const events=s.events||[],eventHtml=events.map(e=>`<div class="event"><span class="ts">${escHtml(e.time)}</span> ${e.error?'<span class="err">! '+escHtml(e.text)+'</span>':'<span class="info">> '+escHtml(e.text)+'</span>'}</div>`).join('');
+  setHtmlIfChanged(document.getElementById('events'),JSON.stringify(events),eventHtml);
+  const payouts=s.payouts||[],payoutHtml=payouts.length?payouts.map(p=>`<div class="event"><span class="ts">${escHtml(p.epoch)}</span> +${escHtml(p.alpha)} Alpha</div>`).join(''):'Waiting for payout observations…';
+  setHtmlIfChanged(document.getElementById('payouts'),JSON.stringify(payouts),payoutHtml);
+  document.getElementById('hotkeydisplay').textContent=s.hotkey||'HOTKEY NOT CONFIGURED';
+  const mid=s.config_miner_id||s.resolved_miner_id;
+  document.getElementById('mineriddisplay').textContent=mid ? `${fmt(mid)} · ${s.config_miner_id?'CONFIGURED':'AUTO-RESOLVED'}` : 'NOT RESOLVED (NOT REQUIRED FOR CURRENT HOTKEY-SCOPED APIs)';
+  document.getElementById('loginfo').textContent=(s.log_files||[]).join(', ')||(s.agent_online?'NO *-cli.log FILES FOUND · SET A LOG FOLDER ON THE MINER MAC':'NO *-cli.log FILES FOUND · SET A LOG FOLDER OR CONNECT THE MINER AGENT');
+  draw(s.series||[]);
+ }catch(e){}
+}
+poll();loadConfig();loadQueue();setInterval(poll,2000);setInterval(loadQueue,5000);
+</script>
+</body></html>

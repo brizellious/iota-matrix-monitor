@@ -1,0 +1,17 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+*.db
+*.sqlite3
+*.log
+config.json
+.venv/
+venv/
+.python-cache/
+.pip-cache/
+.pyinstaller/
+build/
+dist/
+*.pkg
+*.dmg
+pkg-resources/
